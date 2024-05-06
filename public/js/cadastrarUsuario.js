@@ -22,11 +22,7 @@ export function cadastrarUsuario(){
         password: senha
     }
 
-    alert(body.password)
-
     body = JSON.stringify(body)
-
-    alert(body)
 
     fetch(url,  {
         method: "POST",

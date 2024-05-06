@@ -1,6 +1,5 @@
 const sequelize = require("../database/conexao")
 const {DataTypes} = require("sequelize")
-const user = require("./User")
 
 var ferramentas = sequelize.define("ferramentas", {
     nome: {
@@ -19,6 +18,5 @@ var ferramentas = sequelize.define("ferramentas", {
 
 })
 
-//ferramentas.sync({alter: true})
 
 module.exports = ferramentas

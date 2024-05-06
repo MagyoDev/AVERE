@@ -12,8 +12,8 @@ var user = sequelize.define("user", {
     password: DataTypes.STRING
 });
 
-user.hasMany(ferramentas)
+sequelize.sync({force: true})
 
-//sequelize.sync({alter: true})
+user.hasMany(ferramentas)
 
 module.exports = user

@@ -45,7 +45,7 @@ export function estaLogado(){
     var usuario = JSON.parse(localStorage.getItem("autenticacao"))
     
     if(!localStorage.getItem("autenticacao")){
-        window.location = "/logar"
+        window.location = "/login"
     }else{
         var url = "/verificarToken"
 
