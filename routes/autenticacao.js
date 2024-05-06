@@ -4,6 +4,7 @@ var jwt = require("jsonwebtoken")
 var autorizar = require("./autorizacao")
 var fs = require("fs")
 var chavePrivada = fs.readFileSync(__dirname + "/../chaves/chavePrivada.key")
+var chavePublica = fs.readFileSync(__dirname + "/../chaves/chavePrivada.key")
 var chavePrivadaRefreshToken = fs.readFileSync(__dirname + "/../chaves/chavePrivadaRefreshToken.key")
 var chavePublicaRefreshToken = fs.readFileSync(__dirname + "/../chaves/chavePublicaRefreshToken.key")
 var user = require("../models/User")
@@ -22,12 +23,12 @@ router.post('/login', function (req, res, next) {
   }).then((user) => {
 
     if(!user){
-      res.send("Usuario não encontrado").status(404)
+      res.status(404).send("Usuario não encontrado")
       return
     }
 
     if(!bcrypt.compareSync(req.body.password, user.password)){
-      res.send("Usuario nâo encontrado 1").status(404)
+      res.status(404).send("Usuario nâo encontrado 1")
       return
     }
 
@@ -43,11 +44,14 @@ router.post('/login', function (req, res, next) {
     res.send({
       exporesIn: 7200,
       token: token,
-      refreshToken: refreshToken
+      refreshToken: refreshToken,
+      id: user.id,
+      nome: user.nome,
+      email: user.email
     })
 
   }).catch((error) => {
-    res.send("Ero a ao realizar login" + error).status(500)
+    res.status(500).send("Ero a ao realizar login" + error)
   })
 
 })
@@ -71,9 +75,9 @@ router.post("/refresh-token", function(req, res, next){
       }
       var novoToken = jwt.sign(usuario, chavePrivada, {algorithm: "RS256", expiresIn: 7200})
 
-      res.send({
+      res.status(200).send({
         novoToken: novoToken
-      }).status(200)
+      })
     }
   })
 
@@ -96,11 +100,11 @@ router.post("/cadastrar", function (req, res, next) {
 
   }).then((user) => {
 
-    res.send("usuario cadastrado com sucesso").status(200)
+    res.status(200).send("usuario cadastrado com sucesso")
 
   }).catch((error) => {
 
-    res.send("Erro ao cadastrar usuario")
+    res.status(500).send("Erro ao cadastrar usuario")
 
   })
 
@@ -114,7 +118,7 @@ router.get("/atualizar", function(req, res, next){
 router.put('/atualizar/:id', autorizar ,function(req, res, next){
 
   if(req.params.id != req.user.id){
-    res.send("Usuario incorreto").status(401)
+    res.status(401).send("Usuario incorreto")
     return
   }
 
@@ -127,11 +131,11 @@ router.put('/atualizar/:id', autorizar ,function(req, res, next){
       id: req.params.id
     }
   }).then((user) => {
-    res.send("Usuario atualizado com sucesso").status(200)
+    res.status(200).send("Usuario atualizado com sucesso")
 
   }).catch((error) => {
 
-    res.send("Erro ao atualizar usuario").status(500)
+    res.status(500).send("Erro ao atualizar usuario")
 
   })
 
@@ -144,18 +148,55 @@ router.post("/atualizarSenha/:id", autorizar, function(req, res, next) {
     return 
   }
 
+  var password = bcrypt.hashSync(req.body.password, 5)
+
   user.update({
-    password: req.body.password
+    password: password
   }, {
     where: {
       id: req.user.id
     }
   }).then((user) => {
-    res.send("Senha atualizada com sucesso").status(200)
+    res.status(200).send("Senha atualizada com sucesso")
   }).catch((erro)=> {
-    res.send("Erro ao atualizar senha").status(500)
+    res.status(500).send("Erro ao atualizar senha")
   })
   
 })
 
+router.get("/users/:id", autorizar,function(req, res, next){
+    user.findOne({
+      where: {
+        id: req.user.id
+      }
+    }).then((user) => {
+
+      if(!user){
+        res.status(404).send("Usuario não encontrado")
+        return
+      }
+
+      if(user.id != req.user.id){
+        res.status(401).send("Usuario nao autorizado")
+      }
+
+
+      res.status(200).send(JSON.stringify(user))
+    }).catch((error) => {
+      res.send("Erro ao listar usuario")
+    })
+})
+
+router.post("/verificarToken", function(req, res, next){
+  var token = req.body.token;
+
+  jwt.verify(token, chavePublica, {algorithms: ['RS256']}, function(err, token){
+    if(err){
+      if(err.name == "TokenExpiredError") res.status(400).send({message: "Token expirado"})
+      if(err.name == "JsonWebTokenError") res.status(401).send({message: "Token invalido"})
+    }else{
+      res.status(200).send("token ok")
+    }
+  })
+})
 module.exports = router;

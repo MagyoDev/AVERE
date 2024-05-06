@@ -1,0 +1,26 @@
+<script type="module">
+    import { estaLogado } from "/js/autenticacao.js"
+    import { listarFerramentas } from "/js/listarFerramentas.js"
+
+    estaLogado()
+    listarFerramentas()
+</script>
+
+<article class="min-h-screen">
+    <h1 class="text-center text-3xl mt-10">
+        Consultar Ferramentas
+    </h1>
+    <table class="table-auto ml-auto mr-auto">
+        <thead>
+            <tr>
+                <th class="p-4 text-white">Nome</th>
+                <th class="p-4 text-white">Categoria</th>
+                <th class="p-4 text-white">Marca</th>
+                <th class="p-4 text-white">Usuário da Ferramenta</th>
+                <th class="p-4 text-white">Opções</th>
+            </tr>
+        </thead>
+        <tbody id="tabela">
+        </tbody>
+    </table>
+</article>

@@ -26,7 +26,7 @@ router.post("/", autorizar ,function(req, res, next){
     }).then((usuario) => {
 
         if(!usuario){
-            res.send("Usuario não encontrado").status(404)
+            res.status(404).send("Usuario não encontrado")
             return
         }
 
@@ -47,11 +47,11 @@ router.post("/", autorizar ,function(req, res, next){
 
         }).catch((erro) => {
 
-            res.send("Erro ao cadastrar ferramenta").status(500)
+            res.status(500).send("Erro ao cadastrar ferramenta")
 
         })
     }).catch((erro) => {
-        res.send("Erro ao cadastrar ferramenta" + erro).status(500)
+        res.status(500).send("Erro ao cadastrar ferramenta" + erro)
     })
 
     
@@ -64,12 +64,12 @@ router.put('/:idFerramenta', autorizar, function(req, res, next){
         }
     }).then((ferramenta) => {
         if(!ferramenta){
-            res.send("Ferramenta não encontrada").status(404)
+            res.status(404).send("Ferramenta não encontrada")
             return
         }
 
         if(ferramenta.userId != req.user.id){
-            res.send("Usuario não autorizado").status(401)
+            res.status(401).send("Usuario não autorizado")
             return
         }
 
@@ -79,14 +79,14 @@ router.put('/:idFerramenta', autorizar, function(req, res, next){
             marca: req.body.marca,
             usuarioDaFerramenta: req.body.usuarioDaFerramenta
         }).then((ferramenta) => {
-            res.send("Ferramenta atualizada comn sucesso").status(200)
+            res.status(200).send("Ferramenta atualizada comn sucesso")
         }).catch((error) => {
-            res.send("Ero ao atualizar ferramenta").status(500)
+            res.status(500).send("Ero ao atualizar ferramenta")
         })
 
 
     }).catch((erro) => {
-        res.send("Erro ao atualizar ferramenta" + erro).status(500)
+        res.status(500).send("Erro ao atualizar ferramenta" + erro)
     })
 })
 
@@ -97,21 +97,21 @@ router.delete("/:idFerramenta", autorizar ,function(req, res, next){
         }
     }).then((ferramenta) => {
         if(!ferramenta){
-            res.send("Ferramenta não encontrada").status(404)
+            res.status(404).send("Ferramenta não encontrada")
         }
 
         if(ferramenta.userId != req.user.id){
-            res.send("Usuario nao autorizado").status(401)
+            res.status(401).send("Usuario nao autorizado")
             return
         }
 
         ferramenta.destroy().then((ferramenta) => {
-            res.send("Ferramenta excluida com sucesso").status(200)
+            res.status(200).send("Ferramenta excluida com sucesso")
         }).catch((erro) => {
-            res.send("Erro ao excluir ferramenta").status(500)
+            res.status(500).send("Erro ao excluir ferramenta")
         })
     }).catch((erro) => {
-        res.send("Erro ao excluir ferramenta").status(500)
+        res.status(500).send("Erro ao excluir ferramenta")
     })
 })
 
@@ -123,6 +123,34 @@ router.get("/", autorizar, function(req, res, next){
     }).then((ferramentas) => {
         res.send(JSON.stringify(ferramentas))
     })
+})
+
+router.get("/:idFerramenta", autorizar, function(req, res, next){
+
+    ferramentas.findOne({
+        where: {
+            id: req.params.idFerramenta
+        } 
+    }).then((ferramenta) => {
+
+        if(!ferramenta){
+            res.status(404).send("Ferramenta não encontrada")
+            return
+        }
+        console.log(req.user.id)
+        console.log(ferramenta.id)
+
+        if(ferramenta.userId != req.user.id){
+            res.status(401).send("Usuario nao autorizado")
+            return
+        }
+
+        res.status(200).send(JSON.stringify(ferramenta))
+        
+    }).catch((error) => {
+        res.status(500).send("Erro ao listar ferramenta")
+    })
+
 })
 
 module.exports = router

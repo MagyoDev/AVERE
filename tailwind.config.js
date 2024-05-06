@@ -3,7 +3,7 @@ module.exports = {
   content: ["./views/**/*.{handlebars, html,js}"],
   theme: {
     colors: {
-      'blue' : '#000000'
+      'azul': '#8DBEDA',
     },
     extend: {},
   },
